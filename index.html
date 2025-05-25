@@ -1,0 +1,2048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mohan Pasalapudi</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" href="B_1016_BR_Logo.jpg" type="image/x-icon"> <!-- Add this line -->
+    <style>
+        /* Add this line */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+  :root {
+ /* Dark mode variables */
+ --primary-color: #FF6500;
+    --secondary-color: #f74e00;
+    --accent-color: #0B192C;
+    --text-color: #ffffff;
+    --dark-bg: #000000;
+    --light-bg: #1E3E62;
+
+    /* Light mode variables */
+    --light-primary-color: #FF6500;
+    --light-secondary-color: #1E3E62;
+    --light-accent-color: #f5ebe5;
+    --light-text-color: #333333;
+    --light-dark-bg: #e8e7e4;
+}
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+}
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: var(--text-color); /* Text color */
+    background-color: var(--dark-bg); /* Background color for dark mode */
+    transition: background-color 0.3s, color 0.3s;
+}
+  /* Form status message styling */
+  #my-form-status {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+        }
+        
+        #my-form-status.visible {
+            opacity: 1;
+            max-height: 200px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .success-message {
+            background-color: rgba(72, 187, 120, 0.2);
+            color: #276749;
+            border-left: 4px solid #48bb78;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .error-message {
+            background-color: rgba(245, 101, 101, 0.2);
+            color: #c53030;
+            border-left: 4px solid #f56565;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Loading spinner styles */
+        .spinner {
+            display: inline-block;
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: #007bff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* CAPTCHA styling */
+        .captcha-container {
+            margin-bottom: 1.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 1rem;
+            background-color: #f9f9f9;
+        }
+        
+        .captcha-box {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .captcha-text {
+            font-family: 'Courier New', monospace;
+            font-size: 1.5rem;
+            font-weight: bold;
+            letter-spacing: 0.5rem;
+            background: linear-gradient(45deg, #f3f3f3, #e9e9e9);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            user-select: none;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            flex-grow: 1;
+            text-align: center;
+        }
+        
+        .captcha-text::before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(0, 0, 0, 0.05) 10px,
+                rgba(0, 0, 0, 0.05) 20px
+            );
+            z-index: 0;
+        }
+        
+        .captcha-text span {
+            position: relative;
+            z-index: 1;
+            display: inline-block;
+            transform: skewX(var(--skew)) translateY(var(--trans));
+        }
+        
+        .refresh-captcha {
+            background: #f0f0f0;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem;
+            margin-left: 0.5rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .refresh-captcha:hover {
+            background: #e0e0e0;
+        }
+        
+        #captcha-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        /* Confirmation animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-message {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+        
+        /* Success checkmark animation */
+        .checkmark-circle {
+            width: 60px;
+            height: 60px;
+            position: relative;
+            display: inline-block;
+            vertical-align: top;
+            margin-right: 20px;
+        }
+        
+        .checkmark-circle .background {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #48bb78;
+            position: absolute;
+        }
+        
+        .checkmark-circle .checkmark {
+            border-radius: 5px;
+        }
+        
+        .checkmark-circle .checkmark.draw:after {
+            animation-delay: 0.3s;
+            animation-duration: 0.8s;
+            animation-timing-function: ease;
+            animation-name: checkmark;
+            transform: scaleX(-1) rotate(135deg);
+            animation-fill-mode: forwards;
+        }
+        
+        .checkmark-circle .checkmark:after {
+            opacity: 0;
+            height: 30px;
+            width: 15px;
+            transform-origin: left top;
+            border-right: 4px solid white;
+            border-top: 4px solid white;
+            border-radius: 2px !important;
+            content: '';
+            left: 14px;
+            top: 30px;
+            position: absolute;
+        }
+        
+        @keyframes checkmark {
+            0% {
+                height: 0;
+                width: 0;
+                opacity: 1;
+            }
+            20% {
+                height: 0;
+                width: 15px;
+                opacity: 1;
+            }
+            40% {
+                height: 30px;
+                width: 15px;
+                opacity: 1;
+            }
+            100% {
+                height: 30px;
+                width: 15px;
+                opacity: 1;
+            }
+        }
+/* Home Section Styling */
+.home {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(
+        rgba(0, 0, 0, 0.6),
+        rgba(11, 25, 44, 0.7)
+    ), url('https://cdn.pixabay.com/photo/2017/08/05/12/58/computer-2583383_1280.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    padding: 80px 20px 20px;
+    position: relative;
+}
+
+
+
+.home::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    backdrop-filter: blur(0.5px);
+    -webkit-backdrop-filter: blur(0.5px);
+    z-index: 1;
+}
+
+.home-container {
+    position: relative;
+    z-index: 2;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.home-content {
+    flex: 1 1 400px;
+    max-width: 800px;
+}
+
+.home-content h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    margin-bottom: 1rem;
+    background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.profile-img {
+    width: min(300px, 80vw);
+    height: min(300px, 80vw);
+    border-radius: 50%;
+    border: 5px solid var(--primary-color);
+    box-shadow: 0 0 20px rgba(255, 102, 0, 0.5);
+}
+
+/* Button Styling */
+.btn {
+    display: inline-block;
+    padding: clamp(0.8rem, 2vw, 1rem) clamp(1.5rem, 3vw, 2rem);
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    text-decoration: none;
+    border-radius: 5px;
+    transition: all 0.3s;
+    font-weight: 500;
+    border: 2px solid transparent;
+    margin-right: 1rem;
+    margin-top: 1rem;
+    font-size: clamp(0.9rem, 1.5vw, 1rem);
+}
+
+.btn:hover {
+    background-color: transparent;
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Section Styling */
+section {
+    padding: clamp(3rem, 8vw, 5rem) clamp(20px, 5%, 50px);
+}
+
+.section-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.section-title {
+    font-size: clamp(2rem, 4vw, 2.5rem);
+    margin-bottom: clamp(2rem, 5vw, 3rem);
+    text-align: center;
+    color: var(--primary-color);
+}
+
+  /* Enhanced Skill Card Colors - Dark Mode Friendly */
+.skill-card {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+}
+
+.skill-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.skill-card[data-skill="html5"] {
+    background: linear-gradient(145deg, rgba(227, 79, 38, 0.15), rgba(227, 79, 38, 0.05));
+}
+.skill-card[data-skill="html5"] .skill-icon {
+    color: #E34F26;
+    text-shadow: 0 0 10px rgba(227, 79, 38, 0.5);
+}
+
+.skill-card[data-skill="css3"] {
+    background: linear-gradient(145deg, rgba(21, 114, 182, 0.15), rgba(21, 114, 182, 0.05));
+}
+.skill-card[data-skill="css3"] .skill-icon {
+    color: #1572B6;
+    text-shadow: 0 0 10px rgba(21, 114, 182, 0.5);
+}
+
+.skill-card[data-skill="javascript"] {
+    background: linear-gradient(145deg, rgba(247, 223, 30, 0.15), rgba(247, 223, 30, 0.05));
+}
+.skill-card[data-skill="javascript"] .skill-icon {
+    color: #F7DF1E;
+    text-shadow: 0 0 10px rgba(247, 223, 30, 0.5);
+}
+
+.skill-card[data-skill="jdbc"] {
+    background: linear-gradient(145deg, rgba(0, 115, 150, 0.15), rgba(0, 115, 150, 0.05));
+}
+.skill-card[data-skill="jdbc"] .skill-icon {
+    color: #007396;
+    text-shadow: 0 0 10px rgba(0, 115, 150, 0.5);
+}
+.skill-card[data-skill="c"] {
+    background: linear-gradient(145deg, rgba(0, 115, 150, 0.15), rgba(0, 115, 150, 0.05));
+}
+.skill-card[data-skill="c"] .skill-icon {
+    color: #007396;
+    text-shadow: 0 0 10px rgba(0, 115, 150, 0.5);
+}
+
+.skill-card[data-skill="hibernate"] {
+    background: linear-gradient(145deg, rgba(89, 102, 108, 0.15), rgba(89, 102, 108, 0.05));
+}
+.skill-card[data-skill="hibernate"] .skill-icon {
+    color: #bcae79;
+    text-shadow: 0 0 10px rgba(188, 174, 121, 0.5);
+}
+
+.skill-card[data-skill="servlets"] {
+    background: linear-gradient(145deg, rgba(0, 115, 150, 0.15), rgba(0, 115, 150, 0.05));
+}
+.skill-card[data-skill="servlets"] .skill-icon {
+    color: #00A6ED;
+    text-shadow: 0 0 10px rgba(0, 166, 237, 0.5);
+}
+
+.skill-card[data-skill="spring"] {
+    background: linear-gradient(145deg, rgba(109, 179, 63, 0.15), rgba(109, 179, 63, 0.05));
+}
+.skill-card[data-skill="spring"] .skill-icon {
+    color: #68e912;
+    text-shadow: 0 0 10px rgba(102, 255, 0, 0.5);
+}
+
+.skill-card[data-skill="mysql"] {
+    background: linear-gradient(145deg, rgba(68, 121, 161, 0.15), rgba(68, 121, 161, 0.05));
+}
+.skill-card[data-skill="mysql"] .skill-icon {
+    color: #4479A1;
+    text-shadow: 0 0 10px rgba(68, 121, 161, 0.5);
+}
+
+.skill-icon {
+    background: transparent !important;
+    font-size: 2.5rem;
+}
+
+/* Improved Name Animation */
+.animate-name {
+    display: inline-block;
+    opacity: 0;
+    filter: blur(4px);
+    animation: fade-in 0.8s forwards cubic-bezier(0.11, 0, 0.5, 0);
+}
+
+@keyframes fade-in {
+    100% {
+        opacity: 1;
+        filter: blur(0);
+    }
+}
+
+/* Add delay for each character */
+.animate-name span:nth-child(1) { animation-delay: 0.1s }
+.animate-name span:nth-child(2) { animation-delay: 0.2s }
+.animate-name span:nth-child(3) { animation-delay: 0.3s }
+.animate-name span:nth-child(4) { animation-delay: 0.4s }
+.animate-name span:nth-child(5) { animation-delay: 0.5s }
+.animate-name span:nth-child(6) { animation-delay: 0.6s }
+.animate-name span:nth-child(7) { animation-delay: 0.7s }
+.animate-name span:nth-child(8) { animation-delay: 0.8s }
+.animate-name span:nth-child(9) { animation-delay: 0.9s }
+.animate-name span:nth-child(10) { animation-delay: 1.0s }
+.animate-name span:nth-child(11) { animation-delay: 1.1s }
+.animate-name span:nth-child(12) { animation-delay: 1.2s }
+
+/* Light mode adjustments */
+body.light-mode .skill-card {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+body.light-mode .skill-icon {
+    text-shadow: none;
+}
+/* Skills Section Styling */
+.skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+    gap: clamp(1rem, 3vw, 2rem);
+}
+
+.skill-card {
+    background-color: var(--accent-color);
+    border-radius: 10px;
+    padding: clamp(1.5rem, 4vw, 2rem);
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease, background-color 0.3s;
+}
+
+.skill-card:hover {
+    transform: translateY(-10px);
+}
+
+.skill-icon {
+    width: clamp(60px, 8vw, 80px);
+    height: clamp(60px, 8vw, 80px);
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--secondary-color);
+    border-radius: 50%;
+    transition: background-color 0.3s;
+}
+
+.skill-icon i {
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    color: var(--primary-color);
+}
+
+.skill-title {
+    font-size: clamp(1.1rem, 2vw, 1.2rem);
+    margin-bottom: 0.5rem;
+}
+
+.skill-description {
+    font-size: clamp(0.85rem, 1.5vw, 0.9rem);
+    color: #cccccc;
+}
+
+/* Education Timeline Styling */
+.timeline-item {
+    margin-bottom: 2rem;
+    padding-left: clamp(1.5rem, 4vw, 2rem);
+    position: relative;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background-color: var(--primary-color);
+}
+
+.timeline-item::after {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+}
+
+/* Project Card Styling */
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.project-card {
+    background-color: var(--accent-color);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.project-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+}
+
+.project-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.project-content {
+    padding: 1.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.project-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.project-description {
+    margin-bottom: 1rem;
+    flex-grow: 1;
+}
+
+.project-tech {
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.project-tech span {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.project-links {
+    display: flex;
+    gap: 1rem;
+}
+
+.project-btn {
+    flex: 1;
+    text-align: center;
+    padding: 0.8rem;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-view {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-github {
+    background-color: #333;
+    color: white;
+}
+
+.btn-view:hover, .btn-github:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+/* Light mode adjustments */
+body.light-mode .project-card {
+    background-color: white;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* Contact Section Styling */
+.contact-info, .contact-form {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: clamp(1.5rem, 4vw, 2rem);
+    background-color: var(--accent-color);
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease, background-color 0.3s;
+}
+
+.contact-info:hover, .contact-form:hover {
+    transform: translateY(-10px);
+}
+
+.contact-info {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.contact-info p {
+    font-size: clamp(1rem, 1.5vw, 1.1rem);
+    margin-bottom: 1rem;
+}
+
+.contact-info a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.contact-info a:hover {
+    color: var(--secondary-color);
+}
+
+/* Footer Styling */
+footer {
+    background-color: var(--accent-color); /* Dark background for footer */
+    color: var(--text-color); /* Light text color for readability */
+    text-align: center;
+    padding: clamp(1.5rem, 4vw, 2rem) 0;
+    font-size: clamp(0.9rem, 1.5vw, 1rem);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+footer a {
+    color: var(--primary-color); /* Link color */
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+footer a:hover {
+    color: var(--secondary-color); /* Hover color for links */
+}
+
+/* Dark Mode Toggle Button */
+.theme-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    background: var(--primary-color);
+    border: none;
+    color: white;
+    padding: 15px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease;
+    font-size: 1.2rem;
+}
+
+.theme-toggle:hover {
+    transform: scale(1.1);
+}
+
+/* Light Mode Styles */
+body.light-mode {
+    background-color: var(--light-dark-bg);
+    color: var(--light-text-color);
+}
+
+body.light-mode .navbar {
+    background-color: var(--light-accent-color);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+body.light-mode .nav-links li a {
+    color: var(--light-text-color);
+}
+
+body.light-mode .skill-card,
+body.light-mode .project-card,
+body.light-mode .contact-info,
+body.light-mode .contact-form {
+    background-color: white;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+body.light-mode .skill-description {
+    color: #666666;
+}
+
+body.light-mode footer {
+    background-color: var(--light-accent-color);
+    color: var(--light-text-color);
+}
+
+/* Animation Classes */
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.skill-card {
+    animation: cardPop 0.5s ease forwards;
+    opacity: 0;
+}
+
+@keyframes cardPop {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Skill Card Animation Delays */
+.skill-card:nth-child(1) { animation-delay: 0.4s; }
+.skill-card:nth-child(2) { animation-delay: 0.5s; }
+.skill-card:nth-child(3) { animation-delay: 0.6s; }
+.skill-card:nth-child(4) { animation-delay: 0.7s; }
+.skill-card:nth-child(5) { animation-delay: 0.8s; }
+.skill-card:nth-child(6) { animation-delay: 0.9s; }
+.skill-card:nth-child(7) { animation-delay: 0.7s; }
+.skill-card:nth-child(8) { animation-delay: 0.8s; }
+.skill-card:nth-child(9) { animation-delay: 0.9s; }
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+    }
+
+    .nav-links {
+        margin-top: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .home-container {
+        flex-direction: column-reverse;
+        text-align: center;
+    }
+
+    .contact-info, .contact-form {
+        margin: 1rem;
+    }
+}
+
+/* Mobile Menu */
+.mobile-menu-toggle {
+    display: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--primary-color);
+}
+
+@media (max-width: 768px) {
+    .mobile-menu-toggle {
+        display: block;
+    }
+
+    .nav-links {
+        display: none;
+        width: 100%;
+    }
+
+    .nav-links.active {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .nav-links li {
+        width: 100%;
+        text-align: center;
+    }
+
+    .nav-links li a {
+        display: block;
+        padding: 0.8rem;
+    }
+}
+
+/* Navbar Styling */
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+    }
+
+    .nav-links {
+        margin-top: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .home-container {
+        flex-direction: column-reverse;
+        text-align: center;
+    }
+
+    .contact-info, .contact-form {
+        margin: 1rem;
+    }
+}
+
+/* Mobile Menu */
+.mobile-menu-toggle {
+    display: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--primary-color);
+}
+
+@media (max-width: 768px) {
+    .mobile-menu-toggle {
+        display: block;
+    }
+
+    .nav-links {
+        display: none;
+        width: 100%;
+    }
+
+    .nav-links.active {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .nav-links li {
+        width: 100%;
+        text-align: center;
+    }
+
+    .nav-links li a {
+        display: block;
+        padding: 0.8rem;
+        transition: color 0.3s ease; /* Smooth transition for color change */
+    }
+}
+
+/* Navbar Styling */
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: var(--accent-color);
+    z-index: 1000;
+    padding: 1rem 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow for a floating effect */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Transition for background and shadow */
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s ease; /* Smooth transition for logo color */
+}
+
+.logo:hover {
+    color: var(--accent-color); /* Change color on hover */
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    transition: opacity 0.3s ease; /* Smooth opacity change for the menu */
+}
+
+.nav-links li a {
+    color: var(--text-color);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    position: relative;
+    overflow: hidden;
+    transition: color 0.3s ease, transform 0.3s ease; /* Smooth transition for color and hover animation */
+}
+
+.nav-links li a:hover {
+    color: var(--primary-color); /* Change color on hover */
+    transform: scale(1.1); /* Slight zoom effect */
+}
+
+.nav-links li a::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background-color: var(--primary-color);
+    bottom: 0;
+    left: 0;
+    transform: scaleX(0);
+    transition: transform 0.3s ease; /* Line animation */
+}
+
+.nav-links li a:hover::after {
+    transform: scaleX(1); /* Line animates on hover */
+}
+
+/* Mobile menu button */
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    position: absolute;
+    top: 10px; /* Move to the top */
+    left: 10px; /* Move to the left */
+    transition: transform 0.3s ease; /* Add hover animation */
+}
+
+.mobile-menu-btn:hover {
+    transform: rotate(90deg); /* Rotate icon on hover */
+}
+
+.mobile-menu-btn span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: var(--primary-color);
+    margin: 5px 0;
+    transition: background-color 0.3s ease; /* Smooth transition for color */
+}
+
+.mobile-menu-btn:hover span {
+    background-color: var(--accent-color); /* Change color of hamburger bars on hover */
+}
+
+/* Mobile styles */
+@media screen and (max-width: 768px) {
+    .mobile-menu-btn {
+        display: block;
+        color: white;
+    }
+
+    .nav-links {
+        display: none;
+        width: 100%;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background-color: var(--accent-color);
+        flex-direction: column;
+        padding: 1rem 0;
+        opacity: 0; /* Start with the menu hidden */
+        transition: opacity 0.3s ease; /* Transition for menu display */
+    }
+
+    .nav-links.active {
+        display: flex;
+        opacity: 1; /* Make it visible when active */
+    }
+
+    .nav-links li {
+        width: 100%;
+        text-align: center;
+    }
+
+    .nav-links li a {
+        display: block;
+        padding: 1rem;
+        transition: color 0.3s ease; /* Smooth transition for link color */
+    }
+
+    .nav-links li a:hover {
+        color: var(--primary-color); /* Change color on hover */
+    }
+}
+/*form styling*/
+/* Ensure form input and textarea text is visible */
+/* Styling for the contact form */
+.contact-form {
+    max-width: 500px; /* Decrease the maximum width */
+    margin: 0 auto; /* Center the form horizontally */
+    padding: 1rem; /* Reduce padding */
+    background-color: var(--light-dark-bg); /* Light background */
+    border-radius: 8px; /* Slightly smaller border radius */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem; /* Reduce spacing between form elements */
+}
+
+.contact-form label {
+    font-size: 0.9rem; /* Reduce label font size */
+    font-weight: bold;
+    color: var(--primary-color); /* Use primary color for labels */
+}
+
+.contact-form input,
+.contact-form textarea,
+.contact-form select {
+    width: 100%;
+    padding: 0.6rem; /* Reduce padding */
+    border: 1px solid var(--primary-color); /* Border with primary color */
+    border-radius: 4px; /* Slightly smaller border radius */
+    font-size: 0.9rem; /* Reduce font size */
+    background-color: white; /* Ensure a white background */
+    color: black; /* Black text for readability */
+}
+
+.contact-form input::placeholder,
+.contact-form textarea::placeholder {
+    color: rgba(0, 0, 0, 0.6); /* Placeholder text color */
+}
+
+.contact-form button {
+    padding: 0.6rem; /* Reduce button padding */
+    background-color: var(--primary-color); /* Button background color */
+    color: white;
+    border: none;
+    border-radius: 4px; /* Slightly smaller border radius */
+    font-size: 0.9rem; /* Reduce font size */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.contact-form button:hover {
+    background-color: var(--secondary-color); /* Change color on hover */
+}
+/* Dark mode styles for the contact form */
+/* Dark mode styles for entire form and CAPTCHA */
+body:not(.light-mode) .form-container,
+body:not(.light-mode) .captcha-container {
+    background-color: var(--accent-color);
+    border: 1px solid var(--secondary-color);
+    color: var(--text-color);
+}
+
+body:not(.light-mode) .form-input,
+body:not(.light-mode) #captcha-input {
+    background-color: var(--accent-color);
+    color: var(--text-color);
+    border: 1px solid var(--secondary-color);
+}
+
+body:not(.light-mode) .captcha-text {
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    color: var(--text-color);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+body:not(.light-mode) .captcha-text span {
+    color: var(--text-color);
+}
+
+body:not(.light-mode) .form-button,
+body:not(.light-mode) .refresh-captcha {
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+}
+
+body:not(.light-mode) .form-button:hover,
+body:not(.light-mode) .refresh-captcha:hover {
+    background-color: var(--primary-color);
+}
+
+/* Add dark mode styling for labels and other form elements */
+body:not(.light-mode) label,
+body:not(.light-mode) .form-title {
+    color: var(--text-color);
+}
+
+/* Dark mode styles for the contact form */
+body:not(.light-mode) .contact-form {
+    background-color: var(--dark-bg); /* Ensure a visible dark background */
+    color: var(--text-color); /* Light text color for readability */
+    border: 1px solid var(--secondary-color); /* Add a border for better visibility */
+    box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2); /* Subtle white shadow for depth */
+}
+
+body:not(.light-mode) .contact-form input,
+body:not(.light-mode) .contact-form textarea,
+body:not(.light-mode) .contact-form select {
+    background-color: var(--accent-color); /* Dark input background */
+    color: var(--text-color); /* Light text color */
+    border: 1px solid var(--secondary-color); /* Adjust border color */
+}
+
+body:not(.light-mode) .contact-form input::placeholder,
+body:not(.light-mode) .contact-form textarea::placeholder {
+    color: rgba(255, 255, 255, 0.6); /* Light placeholder text */
+}
+
+body:not(.light-mode) .contact-form button {
+    background-color: var(--secondary-color); /* Adjust button background */
+    color: var(--text-color); /* Light text color */
+    border: 1px solid var(--secondary-color); /* Add border for better visibility */
+}
+
+body:not(.light-mode) .contact-form button:hover {
+    background-color: var(--primary-color); /* Change button color on hover */
+}
+/* Parallax Effect for the Home Section */
+.home {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(
+        rgba(0, 0, 0, 0.6),
+        rgba(11, 25, 44, 0.7)
+    ), url('https://cdn.pixabay.com/photo/2017/08/05/12/58/computer-2583383_1280.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed; /* Enables parallax effect */
+    padding: 80px 20px 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.home::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    backdrop-filter: blur(0.5px);
+    -webkit-backdrop-filter: blur(0.5px);
+    z-index: 1;
+}
+
+/* Popup Modal Styling */
+.popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7); /* Darker overlay for better focus */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    transition: opacity 0.3s ease, transform 0.3s ease; /* Smooth transition for appearance */
+    backdrop-filter: blur(5px); /* Adds a blur effect to the background */
+}
+
+.popup.hidden {
+    display: none;
+}
+
+.popup-content {
+    background: linear-gradient(135deg, #ffffff, #f9f9f9); /* Subtle gradient for a modern look */
+    padding: 2.5rem; /* Increased padding for better spacing */
+    border-radius: 15px; /* Softer rounded corners */
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); /* Deeper shadow for a floating effect */
+    animation: popupFadeIn 0.5s ease; /* Animation for popup appearance */
+}
+
+.popup-content h2 {
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+    font-size: 1.8rem; /* Slightly larger font size */
+    font-weight: bold;
+    text-transform: uppercase; /* Adds emphasis */
+}
+
+.popup-content p {
+    margin-bottom: 2rem;
+    color: #555; /* Softer text color for readability */
+    font-size: 1rem;
+    line-height: 1.6; /* Improved line spacing */
+}
+
+.popup-content .btn {
+    margin: 0.5rem;
+    padding: 0.8rem 2rem; /* Wider buttons for better usability */
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px; /* Softer button corners */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth hover effects */
+}
+
+.popup-content .btn:hover {
+    opacity: 0.9;
+    transform: scale(1.05); /* Slight zoom effect on hover */
+}
+
+.popup-content .btn:first-child {
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 10px rgba(255, 101, 0, 0.3); /* Subtle glow effect */
+}
+
+.popup-content .btn:last-child {
+    background-color: #e0e0e0;
+    color: #333;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for contrast */
+}
+
+.popup-content .btn:last-child:hover {
+    background-color: #d6d6d6; /* Slightly darker on hover */
+}
+
+/* Popup Fade-In Animation */
+@keyframes popupFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8); /* Start smaller */
+    }
+    to {
+        opacity: 1;
+        transform: scale(1); /* Full size */
+    }
+}
+
+    </style>
+</head>
+<body>
+        <div class="wave-effect"></div>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">MP</a>
+            <button class="mobile-menu-btn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul  class="nav-links">
+                <li style="color: rgb(255, 89, 0);"><a style="color: rgb(255, 68, 0);" href="#home">Home</a></li>
+                <li><a style="color: rgb(255, 68, 0);" href="#about">About</a></li>
+                <li><a style="color: rgb(255, 68, 0);" href="#skills">Skills</a></li>
+                <li><a style="color: rgb(255, 68, 0);" href="#experience">Experience</a></li>
+                <li><a style="color: rgb(255, 68, 0);" href="#education">Education</a></li>
+                <li><a style="color: rgb(255, 68, 0);" href="#projects">Projects</a></li>
+                <li><a style="color: rgb(255, 68, 0);" href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+
+      <section id="home" class="home">
+        <div class="home-container">
+            <div class="home-content">
+                <h1 class="animate-name">
+                    <span>M</span>
+                    <span>o</span>
+                    <span>h</span>
+                    <span>a</span>
+                    <span>n</span>
+                    <span>&nbsp;</span>
+                    <span>P</span>
+                    <span>a</span>
+                    <span>s</span>
+                    <span>a</span>
+                    <span>l</span>
+                    <span>a</span>
+                    <span>p</span>
+                    <span>u</span>
+                    <span>d</span>
+                    <span>i</span>
+                    
+                </h1>
+                <p style="color: #f5f5f5;">Full Stack Developer</p>
+                <p style="color: #f5f5f5;">Passionate about creating efficient and scalable web applications</p>
+                <div class="btn-group">
+                    <a href="Pasalapudi Mohan Satya Venkatesh -resume.pdf" class="btn download" download>
+                        <i class="fas fa-download"></i> Download Resume
+                    </a>
+                    <a href="https://github.com/Mohan-Pasalapudi" class="btn">
+                        <i class="fab fa-github"></i> GitHub
+                    </a>
+                    <a href="https://www.linkedin.com/in/mohan-pasalapudi/" class="btn">
+                        <i class="fab fa-linkedin"></i> LinkedIn
+                    </a>
+                
+               <a href="#contact" class="btn hire-me">
+                   <i class="fas fa-envelope"></i> Hire Me
+               </a>
+                </div>
+            </div>
+            <img src="p4.png" alt="Mohan Pasalapudi" class="profile-img" loading="lazy">
+        </div>
+    </section>
+
+    <section id="about" class="about">
+        <div class="section-container">
+            <h2 class="section-title">About Me</h2>
+            <p>👋 Hi, I'm Mohan Pasalapudi, a recent B.Tech Computer Science graduate (May 2025) with a strong passion for building modern, scalable applications.</p>
+             <p>💻 I specialize in Java, Python, Django, Spring Boot, and React, and I enjoy crafting full-stack web applications that are efficient, secure, and user-friendly.</p>
+              <p>🚀 From backend systems to dynamic frontends, I love solving real-world problems through clean code and thoughtful design. Some of my recent projects include a banking system, an OCR web app, and a GitHub timeline tracker.</p>     
+               <p>🔍 I'm actively exploring opportunities to grow as a software developer and contribute to impactful projects in the tech industry.</p>
+            <div style="margin-top: 2rem;">
+                <p><strong>Date of Birth:</strong> 09-03-2004</p>
+                <p><strong>Email:</strong> mohansatyavenkateshpasalapudi@gmail.com</p>
+                <p><strong>Location:</strong>  Chintapalli Village, East Godavari District, Andhra Pradesh 533344</p>
+            </div>
+        </div>
+    </section>
+    <section id="skills">
+        <div class="section-container">
+            <h2 class="section-title">Technical Skills</h2>
+            <div class="skills-grid">
+
+                <div class="skill-card" data-skill="c-lang">
+                    <div class="skill-icon">
+                        <i class='fas fa-code'></i>
+                    </div>
+                    <h3 class="skill-title">C Language</h3>
+                    <p class="skill-description">C Programming Language</p>
+                </div>
+
+                <div class="skill-card" data-skill="java">
+                    <div class="skill-icon">
+                        <i class='fab fa-java'></i>
+                       
+                    </div>
+                    <h3 class="skill-title">Java </h3>
+                    <p class="skill-description">Programming Language</p>
+                </div>
+
+                 <div class="skill-card" data-skill="hibernate">
+                    <div class="skill-icon">
+                        <i class='fas fa-feather'></i>
+                    </div>
+                    <h3 class="skill-title">Hibernate</h3>
+                    <p class="skill-description">ORM framework for Java applications</p>
+                </div>
+                 <div class="skill-card" data-skill="maven">
+                    <div class="skill-icon">
+                         <i class='fas fa-feather'></i>
+                    </div>
+                    <h3 class="skill-title">Maven</h3>
+                    <p class="skill-description">Java project build tool</p>
+                </div>
+
+                <div class="skill-card" data-skill="spring">
+                    <div class="skill-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <h3 class="skill-title">Spring Boot</h3>
+                    <p class="skill-description">Java-based framework for web applications</p>
+                </div>
+
+                
+                <div class="skill-card" data-skill="python">
+                    <div class="skill-icon">
+                        <i class='fab fa-python'></i>
+                    </div>
+                    <h3 class="skill-title">Python </h3>
+                    <p class="skill-description">Programming Language</p>
+                </div>
+                 <div class="skill-card" data-skill="django">
+                    <div class="skill-icon">
+                        <i class='fab fa-dev'></i>
+                    </div>
+                    <h3 class="skill-title">Django Framework</h3>
+                    <p class="skill-description">Python webframework</p>
+                </div>
+                 <div class="skill-card" data-skill="flask">
+                    <div class="skill-icon">
+                        <i class='fas fa-flask'></i>
+                    </div>
+                    <h3 class="skill-title">Flask</h3>
+                    <p class="skill-description">Python microframework</p>
+                </div>
+                <div class="skill-card" data-skill="html5">
+                    <div class="skill-icon">
+                        <i class="fab fa-html5"></i>
+                    </div>
+                    <h3 class="skill-title">HTML5</h3>
+                    <p class="skill-description">Semantic markup and modern web standards</p>
+                </div>
+                  <div class="skill-card" data-skill="javascript">
+                    <div class="skill-icon">
+                        <i class="fab fa-js"></i>
+                    </div>
+                    <h3 class="skill-title">JavaScript</h3>
+                    <p class="skill-description">Dynamic and interactive web applications</p>
+                </div>
+                <div class="skill-card" data-skill="sql">
+                    <div class="skill-icon">
+                        <i class='fas fa-database'></i>
+                    </div>
+                    <h3 class="skill-title">SQL</h3>
+                    <p class="skill-description">Structured Query Language</p>
+                </div>
+                <div class="skill-card" data-skill="mysql">
+                    <div class="skill-icon">
+                        <i class='fas fa-database'></i>
+                    </div>
+                    <h3 class="skill-title">MySQL</h3>
+                    <p class="skill-description">Relational database</p>
+                </div>
+
+                <div class="skill-card" data-skill="css3">
+                    <div class="skill-icon">
+                        <i class="fab fa-css3-alt"></i>
+                    </div>
+                    <h3 class="skill-title">CSS3</h3>
+                    <p class="skill-description">Responsive design and animations</p>
+                </div>
+                
+                           
+                <div class="skill-card" data-skill="React">
+                    <div class="skill-icon">
+                        <i class='fab fa-react'></i>
+                    </div>
+                    <h3 class="skill-title">React.js</h3>
+                    <p class="skill-description">Javascript Library</p>
+                </div>
+                <div class="skill-card" data-skill="git">
+                    <div class="skill-icon">
+                           <i class='fab fa-github-square'></i>
+                    </div>
+                    <h3 class="skill-title">Git& Github</h3>
+                    <p class="skill-description">Version control</p>
+                </div>
+
+                 <div class="skill-card" data-skill="aws">
+                    <div class="skill-icon">
+                           <i class='fab fa-aws'></i>
+                    </div>
+                    <h3 class="skill-title">Amazon Web Services</h3>
+                    <p class="skill-description">Cloud computing platform</p>
+                </div>
+                <div class="skill-card" data-skill="powerbi">
+                    <div class="skill-icon">
+                           <i class='far fa-chart-bar'></i>
+                    </div>
+                    <h3 class="skill-title">Power BI</h3>
+                    <p class="skill-description">Data visualization tool</p>
+                </div>
+
+                <div class="skill-card" data-skill="powerbi">
+                    <div class="skill-icon">
+                           <i class='fab fa-creative-commons-by'></i>
+                    </div>
+                    <h3 class="skill-title">Postman</h3>
+                    <p class="skill-description">API testing tool</p>
+                </div>
+                
+              
+                <div class="skill-card" data-skill="mysql">
+                    <div class="skill-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h3 class="skill-title">MySQL</h3>
+                    <p class="skill-description">Database design and management</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section id="experience">
+        <div class="section-container">
+            <h2 class="section-title">Experience</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h3>Software Developer Intern     (Present)</h3>
+                    <p>William O'Neil India Private Limited</p> 
+                    <ul>
+                       <li>Undergoing comprehensive training in Microsoft Dynamics NAV 2018 Supply Chain Management, focusing on ERP
+                        workflows and module customization.</li>
+                      <li>Developed Power BI reports and designed tables, pages, and reports in Dynamics NAV to deliver business insights and
+                      support core operations.</li>
+                        <li>Built and exposed custom APIs using OData web services, enabling seamless third-party integrations and real-time data
+                          access. </li>
+                          <li>Utilized Postman for API development, testing, and debugging, ensuring robust and efficient endpoints</li>
+                         <li><p>Start Date : Aug - 2024</p></li>
+                        </ul>
+ 
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    
+    <section id="education">
+        <div class="section-container">
+            <h2 class="section-title">Education</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h3>Bachelor of Technology, Computer Science and Engineering</h3>
+                    <p>K L University</p>
+                    <p>Percentage : 90.25</p>
+                </div>
+                <div class="timeline-item">
+                    <h3>Intermediate</h3>
+                    <p>Aditya Junior College</p>
+                    <p>Percentage : 91</p>
+                </div>
+                <div class="timeline-item">
+                    <h3>High School</h3>
+                    <p>Pratyusha Public School</p>
+                    <p>Percentage : 95</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+   
+        
+        <section id="projects">
+            <h2 class="section-title">Projects</h2>
+            <div class="projects-grid">
+
+                
+ <!-- Project 7 -->
+ <div class="project-card">
+    <img src="DiveDish.jpg" alt="Netflix-clone-page" class="project-image">
+    <div class="project-content">
+        <h3 class="project-title">DiveDish</h3>
+        <p class="project-description">Recipe app that fetches real-time recipe data from Spoonacular API</p>
+        <div class="project-tech">
+            
+            <span>React.js</span>
+            <span>Spoonacular API</span>
+            <span>React hooks</span>
+       
+        </div>
+        <div class="project-links">
+            <a href="https://mohan-pasalapudi.github.io/recipe-app/" class="project-btn btn-view">View Project</a>
+            <a href="https://github.com/babureddynr/NETFLIX-CLONE" class="project-btn btn-github">GitHub</a>
+        </div>
+    </div>
+</div>
+
+ <!-- Project 8 -->
+ <div class="project-card">
+    <img src="artg.png" alt="Netflix-clone-page" class="project-image">
+    <div class="project-content">
+        <h3 class="project-title">Online Art Gallery</h3>
+        <p class="project-description">Online Art Gallery web application to connect artists and art enthusiasts in a seamless digital platform. The application allows artists to showcase and sell their artworks directly to buyers, promoting creativity and accessibility.</p>
+        <div class="project-tech">
+            <span>SpringBoot</span>
+            <span>Hibernate</span>
+            <span>Java</span>
+             <span>Mysql</span>
+              <span>HTML</span>
+               <span>CSS</span>
+        </div>
+        <div class="project-links">
+            
+            <a href="https://github.com/Mohan-Pasalapudi/OnlineArtGallery-SDP-SpringBoot" class="project-btn btn-github">GitHub</a>
+        </div>
+    </div>
+</div>
+
+                 
+                <!-- Project 1 -->
+
+                <div class="project-card">
+                    <img src="bankproject.png" alt="Cool pizza clone" class="project-image">
+                    <div class="project-content">
+                        <h3 class="project-title">Banking and Financial System</h3>
+                        <p class="project-description">Django Banking Management System featuring user registration, role-based authentication with secure dashboards for Admin, Employee, and Customer, core banking operations, and session timeout middleware for automatic logout of inactive users.</p>
+                        <div class="project-tech">
+                            <span>Django</span>
+                            <span>Python</span>
+                            <span>HTML</span>
+                            <span>CSS</span>
+                            <span>Mysql</span>
+                           
+                       
+                        </div>
+                        <div class="project-links">
+                            <a href="https://mohan2023.pythonanywhere.com/" class="project-btn btn-view">View Project</a>
+                            <a href="https://github.com/Mohan-Pasalapudi/PythonDjangoBankingProject?tab=readme-ov-file" class="project-btn btn-github">GitHub</a>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Project 02 -->
+
+                <div class="project-card">
+                    <img src="ocr.png" alt="Cool pizza clone" class="project-image">
+                    <div class="project-content">
+                        <h3 class="project-title">AI : ImageToText – OCR Web App</h3>
+                        <p class="project-description">An AI-powered web application that extracts text from images using Optical Character Recognition (OCR) technology. Built with Python, Django, and integrated with Tesseract and PyTorch, the app can accurately recognize and convert text from various image types including screenshots, scanned documents, and handwritten notes. </p>
+                        <div class="project-tech">
+                            <span>Python</span>
+                            <span>Tesseract</span>
+                            <span>PyTorch</span>
+                            <span>HTML</span>
+                            <span>CSS</span>
+                            
+                       
+                        </div>
+                        <div class="project-links">
+                           
+                            <a href="https://github.com/Mohan-Pasalapudi/OCR-Project?tab=readme-ov-file" class="project-btn btn-github">GitHub</a>
+                        </div>
+                    </div>
+                </div>
+
+ 
+        </section>
+        <section id="contact">
+            <h2 class="section-title">Contact Me</h2>
+            <form id="my-form" class="contact-form" action="" method="POST">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" placeholder="Enter your name" required>
+                
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                
+                <label for="message">Message:</label>
+                <textarea id="message" name="message" placeholder="Enter your message" rows="5" required></textarea>
+                
+                <label for="feedback">How did you find us?</label>  
+                <select id="feedback" name="feedback" required>
+                    <option value="" disabled selected>Select an option</option>
+                    <option value="linkedin">LinkedIn</option>
+                    <option value="naukri">Naukri</option>
+                    <option value="friend">Friend/Colleague</option>
+                    <option value="other">Other</option>
+                </select>
+                
+                <!-- CAPTCHA Section -->
+                <div class="captcha-container">
+                    <label for="captcha-input">Please verify you're human:</label>
+                    <div class="captcha-box">
+                        <div id="captcha" class="captcha-text"></div>
+                        <button type="button" id="refresh-captcha" class="refresh-captcha" aria-label="Refresh CAPTCHA">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <input type="text" id="captcha-input" name="captcha" placeholder="Enter the code above" required>
+                </div>
+                
+                <button type="submit" id="submit-btn" class="btn">
+                    <span id="spinner" class="spinner hidden"></span>
+                    <span id="button-text">Submit</span>
+                </button>
+            </form>
+            <div id="my-form-status"></div> <!-- Status message container -->
+        </section>
+    
+        <footer>
+            <p>&copy; 2025 Mohan Pasalapudi. All rights reserved.</p>
+        </footer>
+        
+        <button class="theme-toggle" aria-label="Toggle dark/light mode">
+            <i class="fas fa-moon"></i>
+        </button>
+              <!-- Hire Me Popup Modal -->
+    <div id="hire-popup" class="popup hidden">
+        <div class="popup-content">
+            <h2>Let's Collaborate!</h2>
+            <p>Are you in search of a passionate Full Stack Developer to bring your ideas to life? I specialize in:</p>
+            <ul style="text-align: left; margin: 1rem 0; padding-left: 1.5rem;">
+                <li>HTML, CSS, JavaScript</li>
+                <li>Java, Spring Boot</li>
+                <li>MySQL and more!</li>
+            </ul>
+            <div class="popup-buttons" style="display: flex; justify-content: center; gap: 1rem; margin-top: 1rem;">
+                <button id="hire-me-btn" class="btn btn-primary" style="padding: 0.8rem 1.5rem;">Let's Get Started</button>
+                <button id="close-popup-btn" class="btn btn-secondary" style="padding: 0.8rem 1.5rem;">Not Now</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Redirect to home (top of the page) on reload if there's a hash in the URL
+            if (window.location.hash) {
+                window.history.replaceState(null, null, window.location.pathname);
+            }
+    
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Smoothly scroll to the target section
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+    
+                    // Remove the hash from the URL after scrolling
+                    history.pushState(null, null, ' ');
+                });
+            });
+
+            // Mobile menu toggle
+            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+            const navLinks = document.querySelector('.nav-links');
+            
+            if (mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    navLinks.classList.toggle('active');
+                });
+            }
+            
+            // Close menu when clicking a link
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', function() {
+                    navLinks.classList.remove('active');
+                });
+            });
+            
+            // Dark mode toggle functionality
+            const themeToggle = document.querySelector('.theme-toggle');
+            const themeIcon = themeToggle.querySelector('i');
+            
+            // Load saved theme preference
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.body.classList.toggle('light-mode', savedTheme === 'light');
+                if (savedTheme === 'light') {
+                    themeIcon.classList.remove('fa-moon');
+                    themeIcon.classList.add('fa-sun');
+                }
+            } else {
+                // Set default theme to light mode
+                document.body.classList.add('light-mode');
+            }
+            
+            themeToggle.addEventListener('click', () => {
+                const isLightMode = document.body.classList.toggle('light-mode');
+                localStorage.setItem('theme', isLightMode ? 'light' : 'dark');
+                
+                if (isLightMode) {
+                    themeIcon.classList.remove('fa-moon');
+                    themeIcon.classList.add('fa-sun');
+                } else {
+                    themeIcon.classList.remove('fa-sun');
+                    themeIcon.classList.add('fa-moon');
+                }
+            });
+            
+            // Intersection Observer for fade-in animations
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+            
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+            
+            // Add fade-in class and observe all sections
+            document.querySelectorAll('section').forEach(section => {
+                section.classList.add('fade-in');
+                observer.observe(section);
+            });
+            
+            // Calculate experience duration
+            function calculateExperience(joinDate) {
+                const startDate = new Date(joinDate); // Joining date
+                const currentDate = new Date(); // Current date
+                const diffInMs = currentDate - startDate;
+                
+                // Calculate years, months, and days
+                const years = Math.floor(diffInMs / (1000 * 60 * 60 * 24 * 365.25));
+                const months = Math.floor((diffInMs % (1000 * 60 * 60 * 24 * 365.25)) / (1000 * 60 * 60 * 24 * 30.4375));
+                const days = Math.floor((diffInMs % (1000 * 60 * 60 * 24 * 30.4375)) / (1000 * 60 * 60 * 24));
+                
+                // Return formatted experience
+                return `${years} years, ${months} months, and ${days} days`;
+            }
+            
+            // Set the experience duration
+            const experienceDuration = document.getElementById('experience-duration');
+            if (experienceDuration) {
+                experienceDuration.textContent = calculateExperience('2024-11-06'); // Joining date (YYYY-MM-DD)
+            }
+            
+            // Wave effect on mouse move
+            const waveContainer = document.querySelector('.wave-effect');
+            if (waveContainer) {
+                document.addEventListener('mousemove', function(e) {
+                    const wave = document.createElement('div');
+                    wave.className = 'wave';
+                    wave.style.left = `${e.clientX}px`;
+                    wave.style.top = `${e.clientY}px`;
+                    
+                    waveContainer.appendChild(wave);
+                    
+                    // Remove the wave after the animation ends
+                    wave.addEventListener('animationend', () => {
+                        wave.remove();
+                    });
+                });
+            }
+            
+            // Form submission handling - FIXED
+            // CAPTCHA generation and validation
+            const captchaEl = document.getElementById('captcha');
+            const refreshBtn = document.getElementById('refresh-captcha');
+            const captchaInput = document.getElementById('captcha-input');
+            let captchaText = '';
+            
+            // Generate random CAPTCHA
+            function generateCaptcha() {
+                const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+                captchaText = '';
+                captchaEl.innerHTML = '';
+                
+                for (let i = 0; i < 6; i++) {
+                    const randomChar = chars.charAt(Math.floor(Math.random() * chars.length));
+                    captchaText += randomChar;
+                    
+                    // Create span for each character with random transformation
+                    const span = document.createElement('span');
+                    span.textContent = randomChar;
+                    
+                    // Add some random skew and vertical position for each character
+                    const skew = Math.floor(Math.random() * 21) - 10; // -10 to 10 degrees
+                    const trans = Math.floor(Math.random() * 11) - 5; // -5 to 5 pixels
+                    
+                    span.style.setProperty('--skew', `${skew}deg`);
+                    span.style.setProperty('--trans', `${trans}px`);
+                    
+                    captchaEl.appendChild(span);
+                }
+            }
+            
+            // Initialize CAPTCHA
+            if (captchaEl && refreshBtn) {
+                generateCaptcha();
+                
+                // Refresh CAPTCHA when button is clicked
+                refreshBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    generateCaptcha();
+                });
+            }
+            
+            // Form submission handling with CAPTCHA validation
+            const form = document.getElementById("my-form");
+            const status = document.getElementById("my-form-status");
+            const submitBtn = document.getElementById("submit-btn");
+            const spinner = document.getElementById("spinner");
+            const buttonText = document.getElementById("button-text");
+            
+            if (form) {
+                form.addEventListener("submit", async function(event) {
+                    event.preventDefault();
+                    
+                    // Validate CAPTCHA
+                    if (captchaInput && captchaInput.value.trim() !== captchaText) {
+                        status.textContent = "Incorrect CAPTCHA code. Please try again.";
+                        status.className = "error-message visible";
+                        generateCaptcha(); // Reset CAPTCHA after failed attempt
+                        captchaInput.value = "";
+                        captchaInput.focus();
+                        return;
+                    }
+                    
+                    // Show loading spinner
+                    spinner.classList.remove("hidden");
+                    buttonText.textContent = "Sending...";
+                    submitBtn.disabled = true;
+                    status.className = "";
+                    status.textContent = "";
+                    
+                    try {
+                        const formData = new FormData(form);
+                        // Remove the CAPTCHA value before sending to Formspree
+                        formData.delete('captcha');
+                        
+                        const response = await fetch(form.action, {
+                            method: form.method,
+                            body: formData,
+                            headers: {
+                                'Accept': 'application/json'
+                            }
+                        });
+                        
+                        if (response.ok) {
+                            // Success with animated checkmark
+                            status.innerHTML = `
+                                <div class="checkmark-circle">
+                                    <div class="background"></div>
+                                    <div class="checkmark draw"></div>
+                                </div>
+                                <div>
+                                    <strong>Thank you for your message!</strong>
+                                    <p>Your submission has been received successfully. I will get back to you soon.</p>
+                                </div>
+                            `;
+                            status.className = "success-message visible animate-message";
+                            form.reset();
+                            generateCaptcha(); // Reset CAPTCHA after successful submission
+                        } else {
+                            // Server error
+                            const data = await response.json();
+                            let errorMessage = "Oops! There was a problem submitting your form.";
+                            
+                            if (data && data.errors) {
+                                errorMessage = data.errors.map(error => error.message).join(", ");
+                            }
+                            
+                            status.textContent = errorMessage;
+                            status.className = "error-message visible animate-message";
+                        }
+                    } catch (error) {
+                        // Network error
+                        status.textContent = "Oops! There was a problem submitting your form. Please try again later.";
+                        status.className = "error-message visible animate-message";
+                        console.error("Form submission error:", error);
+                    } finally {
+                        // Hide loading spinner
+                        spinner.classList.add("hidden");
+                        buttonText.textContent = "Submit";
+                        submitBtn.disabled = false;
+                        
+                        // Scroll to status message
+                        status.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                });
+            }
+        });
+
+
+            document.addEventListener('DOMContentLoaded', function () {
+            const popup = document.getElementById('hire-popup');
+            const hireMeBtn = document.getElementById('hire-me-btn');
+            const closePopupBtn = document.getElementById('close-popup-btn');
+        
+            // Function to show the popup
+            function showPopup() {
+                popup.classList.remove('hidden');
+            }
+        
+            // Function to hide the popup
+            function hidePopup() {
+                popup.classList.add('hidden');
+            }
+        
+            // Show the popup every 1 minute (60000ms)
+            setInterval(showPopup, 60000);
+        
+            // Redirect to the contact form when "Hire Me" is clicked
+            hireMeBtn.addEventListener('click', function () {
+                hidePopup();
+                document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+            });
+        
+            // Close the popup when "Close" is clicked
+            closePopupBtn.addEventListener('click', hidePopup);
+        });
+    </script>
+</body>
+</html>
